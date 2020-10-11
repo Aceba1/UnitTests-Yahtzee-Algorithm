@@ -3,15 +3,11 @@ package com.aceba1.yahtzee;
 import java.util.Random;
 
 public class Die {
-  private static Random random = new Random();
+  private final static Random random = new Random();
 
   private final int range;
   private int rolled;
   private int rollsLeft;
-
-  public Die() {
-    this(6, 3);
-  }
 
   public Die(int range, int rollsLeft) {
     this.range = range;
