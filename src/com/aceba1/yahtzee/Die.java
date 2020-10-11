@@ -7,14 +7,16 @@ public class Die {
 
   private final int range;
   private int rolled;
+  private int rollsLeft;
 
   public Die() {
-    this(6);
+    this(6, 3);
   }
 
-  public Die(int range) {
+  public Die(int range, int rollsLeft) {
     this.range = range;
     this.rolled = 0;
+    this.rollsLeft = rollsLeft;
   }
 
   public int getRolled() {
@@ -23,14 +25,20 @@ public class Die {
     return rolled;
   }
 
+  public int getRollsLeft() {
+    return rollsLeft;
+  }
+
   public int reroll() {
+    if (rollsLeft <= 0)
+      return rolled;
+    rollsLeft--;
     rolled = random.nextInt(range) + 1;
     return rolled;
   }
 
   @Override
   public String toString() {
-    return "d" + range +
-      ": " + getRolled();
+    return getRolled() + " (r" + rollsLeft + ")";
   }
 }
