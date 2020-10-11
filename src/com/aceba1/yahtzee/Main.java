@@ -78,6 +78,7 @@ public class Main {
           return val;
       } catch (InputMismatchException e) {
         System.out.println("Not a number");
+        in.nextLine(); // Clear buffer to avoid locking
       }
     }
   }
