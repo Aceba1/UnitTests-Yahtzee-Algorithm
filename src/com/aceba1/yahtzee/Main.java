@@ -17,21 +17,24 @@ public class Main {
     for (int i = 0; i < 5; i++) {
       Die currentDie = new Die(6, 3);
       dice.add(currentDie);
+
+      boolean canReroll;
       do {
-        printDice();
-        if (preMessage)
-          preMessage = preRollMessage();
-      } while (promptReroll());
+        canReroll = printDice();
+        if (!canReroll) System.out.println("\nOut of rerolls!");
+        if (preMessage) preMessage = preRollMessage();
+      }
+      while (canReroll && promptReroll());
     }
     System.out.println("End of program");
   }
 
   static boolean preRollMessage() {
-    System.out.print("\nEnter a die index to reroll, or 0 to continue");
+    System.out.print("\nEnter an index to reroll, or 0 to continue");
     return false;
   }
 
-  static void printDice() {
+  static boolean printDice() {
     System.out.println("\nDice: " + dice.size() +
       ", Sum=" + dice.stream()
         .mapToInt(Die::getRolled)
@@ -39,6 +42,10 @@ public class Main {
 
     for (int i = 0; i < dice.size(); i++)
       System.out.println("- " + (i + 1) + ": " + dice.get(i));
+
+    return dice.stream()
+      .mapToInt(Die::getRollsLeft)
+      .sum() != 0;
   }
 
   static boolean promptReroll() {
