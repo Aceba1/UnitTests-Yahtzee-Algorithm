@@ -1,5 +1,7 @@
 package com.aceba1.yahtzee;
 
+import com.aceba1.util.Input;
+
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -7,79 +9,62 @@ import java.util.Scanner;
 
 public class Main {
 
-  final static Scanner in = new Scanner(System.in);
-  final static List<Die> dice = new ArrayList<>();
-
   public static void main(String[] args) {
-    // Variables are initialized by static constructor
-    System.out.println("Max 5 Dice\nStart of program");
-    boolean preMessage = true;
-    for (int i = 0; i < 5; i++) {
-      Die currentDie = new Die(6, 3);
-      dice.add(currentDie);
+    while (true) {
+      List<HoldableDie> dice = new ArrayList<>();
 
-      boolean canReroll;
-      do {
-        canReroll = printDice();
-        if (!canReroll) System.out.println("\nOut of rerolls!");
-        if (preMessage) preMessage = preRollMessage();
+      for (int i = 0; i < 5; i++)
+        dice.add(new HoldableDie());
+
+      preRollMessage();
+
+      for (int i = 2; i >= 1; i--) {
+        rollDice(dice);
+        printDice(dice, i);
+
+        while (promptHold(dice))
+          printDice(dice, i);
       }
-      while (canReroll && promptReroll());
+
+      rollDice(dice);
+      System.out.println("\nEnd");
+      for (int i = 0; i < dice.size(); i++)
+        System.out.println("- " + (i + 1) + ": " + dice.get(i).getRolled());
+
+      try {
+        Thread.sleep(1500);
+      } catch (InterruptedException e) {
+        break;
+      }
     }
-    System.out.println("End of program");
   }
 
-  static boolean preRollMessage() {
-    System.out.print("\nEnter an index to reroll, or 0 to continue");
-    return false;
+  static void preRollMessage() {
+    System.out.print("\nEnter the index of a die to hold\nEnter 0 to reroll\n");
   }
 
-  static boolean printDice() {
-    System.out.println("\nDice: " + dice.size() +
-      ", Sum=" + dice.stream()
-        .mapToInt(Die::getRolled)
-        .sum());
+  static void rollDice(List<HoldableDie> dice) {
+    System.out.print("\nRolling...\n");
+    for (HoldableDie die : dice)
+      die.roll();
+  }
+
+  static void printDice(List<HoldableDie> dice, int rollsLeft) {
+    System.out.println("\nRolls left: " + rollsLeft);
 
     for (int i = 0; i < dice.size(); i++)
       System.out.println("- " + (i + 1) + ": " + dice.get(i));
-
-    return dice.stream()
-      .mapToInt(Die::getRollsLeft)
-      .sum() != 0;
   }
 
-  static boolean promptReroll() {
+  static boolean promptHold(List<HoldableDie> dice) {
     int size = dice.size();
-    int input = prompt("\nReroll? " +
+    int input = Input.getNum("\nHold " +
         "[0," + (size > 1 ? "1-" : "") + size + "]: ",
-      0, dice.size());
-    if (input == 0)
-      return false;
+      0, size);
 
-    var die = dice.get(input - 1);
+    if (input == 0) return false;
 
-    if (die.getRollsLeft() == 0)
-      System.out.println("Out of rerolls!");
-    else die.reroll();
-
+    dice.get(input - 1).toggleHold();
     return true;
-  }
-
-  static int prompt(String textNoLine, int minValue, int maxValue) {
-    while (true) {
-      System.out.print(textNoLine);
-      try {
-        int val = in.nextInt();
-        in.nextLine();
-
-        if (val > maxValue || val < minValue)
-          System.out.println("Out of range (" + minValue + "-" + maxValue + ")");
-        else
-          return val;
-      } catch (InputMismatchException e) {
-        System.out.println("Not a number");
-        in.nextLine(); // Clear buffer to avoid locking
-      }
-    }
   }
 }
