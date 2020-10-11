@@ -5,7 +5,8 @@ import java.util.Scanner;
 public class Input {
   final static Scanner in = new Scanner(System.in);
 
-  public static String getLine(String promptNoLine) {
+  public static String getLine(String prompt) {
+    System.out.print(prompt);
     return in.nextLine().trim().toLowerCase();
   }
 
